@@ -21,6 +21,9 @@ module.exports = {
 	paymentType: {
 	    type: 'integer'	    
 	},
+	isAvailable: {
+	    type: 'boolean'  
+	},
 	availableFrom: {
 	    type: 'date'
 	},
