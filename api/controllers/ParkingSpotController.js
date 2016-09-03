@@ -62,7 +62,6 @@ module.exports = {
 			if(err){
 			    cb(err);
 			} else {
-			    console.log(spots);
 			    cb(null, spots);
 			}
 		    });

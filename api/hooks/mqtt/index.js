@@ -7,7 +7,6 @@ function updateSpotAvailability(id, status) {
 		console.log("Availability of " + spot.id + " set as " + spot.status);
 	    };
 	});
-
 }
 
 module.exports = function mqtt(sails) {
