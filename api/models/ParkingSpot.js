@@ -3,29 +3,23 @@
  *
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/documentation/concepts/models-and-orm/models
- * @param paymentType : 0 - credit card
+ * @param state ("requestable","available","occupied")
  */
 
 module.exports = {
 
     attributes: {
+	owner: {
+	    model: 'user'
+	},
 	latitude: {
 	    type: 'string'
 	},
 	longitude: {
 	    type: 'string'
 	},
-	parkingType: {
-	    type: 'string'
-	},
-	paymentType: {
-	    type: 'integer'	    
-	},
-	isAvailable: {
-	    type: 'boolean'  
-	},
-	availableFrom: {
-	    type: 'date'
+	state: {
+	    type: 'string'  
 	},
 	availableTo: {
 	    type: 'date'

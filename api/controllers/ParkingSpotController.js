@@ -19,37 +19,60 @@ module.exports = {
 		return !_.isUndefined(lot.ParkingSpacesAvailable);
 	    });
 	    
-	    console.log(_.pluck(reliableLots, "ParkingSpacesAvailable"));
-	    
-	    var availableParkingSpots = {
-		publicSpots: [],
-		privateSpots: []
-	    };
-	    
-	    _.each(reliableLots, function(spot) {
-		// Basic response object
-		// New field: 
-		// parkingCategory (0-public, 1-private free, 2-private request)
-		// timeAvailability (startTime - endTime);
-		publicSpot = {
-		    name: spot.Name,
-		    id: spot.Id,
-		    lat: spot.Latitude,
-		    lng: spot.Longitude,
-		    parkingSpacesAvailable: spot.ParkingSpacesAvailable,
-		    parkingSpaces: spot.ParkingSpaces,
-		    parkingType: spot.ParkingTypes,
-		    parkingAreaType: spot.ParkingAreaTypes,
-		    paymentTypes: spot.PaymentTypes,
-		    chargeDescription: spot.ChargeDescription,
-		};
-		
-		availableParkingSpots.publicSpots.push(publicSpot);
+	    async.series({
+		publicSpots: function(cb) {
+		    publicSpots = [];
+		    _.each(reliableLots, function(spot) {
+			// Basic response object
+			// New field: 
+			// timeAvailability (startTime - endTime);
+			publicSpot = {
+			    name: spot.Name,
+			    id: spot.Id,
+			    lat: spot.Latitude,
+			    lng: spot.Longitude,
+			    parkingSpacesAvailable: spot.ParkingSpacesAvailable,
+			    parkingSpaces: spot.ParkingSpaces,
+			    parkingType: spot.ParkingTypes,
+			    parkingAreaType: spot.ParkingAreaTypes,
+			    paymentTypes: spot.PaymentTypes,
+			    chargeDescription: spot.ChargeDescription,
+			};
+			publicSpot.info = 'Name: ' + publicSpot.name  + '  \n' +
+			    'Available: ' + publicSpot.parkingSpacesAvailable  + '/' +
+			    publicSpot.parkingSpaces + '\n' +
+			    'Parking Types: ' + _.flatten(publicSpot.parkingType)  + '\n' +
+			    'Area Types: ' + _.flatten(publicSpot.parkingAreaType)  + '\n' +
+			    'Description: ' +  publicSpot.chargeDescription;
+			
+			publicSpots.push(publicSpot);
+		    });
+		    
+		    cb(null, publicSpots);
+		},
+		privateSpots: function(cb) {
+		    privateSpots = [];
+		    ParkingSpot.find({
+			or : [
+			    {state: "requestable"},
+			    {state: "available"}
+			]
+		    }).exec(function (err, spots) {
+			if(err){
+			    cb(err);
+			} else {
+			    console.log(spots);
+			    cb(null, spots);
+			}
+		    });
+		}
+	    }, function(err, result) {
+		if(err) {
+		    return res.send(err);
+		} else {
+		    return res.ok(result);   
+		}
 	    });
-
-	    console.log(availableParkingSpots);
-	    
-	    return res.ok(availableParkingSpots);
 	});
     }
 };
