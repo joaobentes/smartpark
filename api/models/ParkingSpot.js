@@ -12,6 +12,9 @@ module.exports = {
 	owner: {
 	    model: 'user'
 	},
+	pi: {
+	    model: 'pi'  
+	},
 	latitude: {
 	    type: 'string'
 	},
@@ -25,6 +28,5 @@ module.exports = {
 	    type: 'date'
 	}
     }
-    
 };
 
