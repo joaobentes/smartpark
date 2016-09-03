@@ -29,8 +29,8 @@ module.exports = {
 			publicSpot = {
 			    name: spot.Name,
 			    id: spot.Id,
-			    lat: spot.Latitude,
-			    lng: spot.Longitude,
+			    latitude: spot.Latitude,
+			    longitude: spot.Longitude,
 			    parkingSpacesAvailable: spot.ParkingSpacesAvailable,
 			    parkingSpaces: spot.ParkingSpaces,
 			    parkingType: spot.ParkingTypes,
