@@ -3,7 +3,9 @@
  *
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/documentation/concepts/models-and-orm/models
- * @param state ("requestable","available","occupied", "booked")
+ * @param state ("requestable","available","not offerred", "booked")
+ * @param isOccupied ("true", "false")
+ * @param isAvailable ("true", "false")
  */
 
 module.exports = {
@@ -26,6 +28,9 @@ module.exports = {
 	},
 	isRequestable: {
 	    type: 'boolean'
+	},
+	isOccupied: {
+	    type: 'boolean'  
 	},
 	availableTo: {
 	    type: 'date'

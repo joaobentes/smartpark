@@ -9,6 +9,57 @@ var request = require('request');
 
 module.exports = {
 
+    getSpotsByUser: function(req, res){
+
+	async.waterfall([
+	    function getParkingSpots(cb){
+		var ownerId = req.allParams().ownerId;
+		ParkingSpot.find({owner: ownerId})
+		    .exec(function(err, spots) {
+		    if(err) { cb(err); }
+		    cb(null, spots);
+		});
+	    },
+	    function getBookedSpots(spots, cb){
+		var bookedSpots = _.filter(spots, function(spot){
+		    return spot.status == 'booked'; 
+		});
+		var spotIds = _.pluck(bookedSpots, 'id');
+		Booking.find({
+		    where: {parkingSpot: spotIds},
+		}).populateAll().exec(function(err, bookings){
+		    if(err || bookings.length < 1){
+			cb(err);
+		    }
+		    cb(null, spots, bookings);
+		});
+	    },
+	    function mapBookedSpots(spots, bookings, cb){
+		var bookedSpots = [];
+		_.each(bookings, function(booking){
+		    var newSpot = {};
+		    newSpot = booking.parkingSpot;
+		    newSpot.booking = {
+			user: booking.user.name,
+			endTime: booking.endTime
+		    };
+		    bookedSpots.push(newSpot);
+		});
+		cb(null, spots, bookedSpots);
+	    },
+	    function getNonBookedSpots(spots, bookedSpots, cb){
+		var nonBookedSpots = _.filter(spots, function(spot){
+		    return spot.status != 'booked'; 
+		});
+		var spots = _.union(bookedSpots, nonBookedSpots);
+		cb(null, spots)
+	    }
+	], function(err, spots) {
+	    if(err) {return res.serverError(err);}
+	    return res.ok(spots);
+	});
+    },
+
     getAvailableSpots: function(req, res) {
 
 	var url = sails.config.linkopingApi.urls.all + "/" + sails.config.linkopingApi.key + "/" + "0";
