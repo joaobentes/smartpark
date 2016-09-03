@@ -10,6 +10,7 @@ var request = require('request');
 module.exports = {
 
     getAvailableSpots: function(req, res) {
+
 	var url = sails.config.linkopingApi.urls.all + "/" + sails.config.linkopingApi.key + "/" + "0";
 
 	request.get(url, function(erroe, response, body) {
@@ -57,7 +58,7 @@ module.exports = {
 			    {state: "requestable"},
 			    {state: "available"}
 			]
-		    }).exec(function (err, spots) {
+		    }).populate("owner").exec(function (err, spots) {
 			if(err){
 			    cb(err);
 			} else {
