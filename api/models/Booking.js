@@ -1,35 +1,28 @@
 /**
- * ParkingSpot.js
+ * Booking.js
  *
  * @description :: TODO: You might write a short summary of how this model works and what it represents here.
  * @docs        :: http://sailsjs.org/documentation/concepts/models-and-orm/models
- * @param state ("requestable","available","occupied", "booked")
+ * @params : status(approved, under approvement, rejected, finished)
  */
 
 module.exports = {
 
     attributes: {
-	owner: {
+	user: {
 	    model: 'user'
 	},
-	pi: {
-	    model: 'pi'  
+	parkingSpot: {
+	    model: 'ParkingSpot'  
 	},
-	latitude: {
+	status: {
 	    type: 'string'
 	},
-	longitude: {
-	    type: 'string'
+	startTime: {
+	    type: 'date'
 	},
-	state: {
-	    type: 'string'  
-	},
-	isRequestable: {
-	    type: 'boolean'
-	},
-	availableTo: {
+	endTime: {
 	    type: 'date'
 	}
     }
 };
-

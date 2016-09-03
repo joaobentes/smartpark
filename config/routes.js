@@ -45,7 +45,10 @@ module.exports.routes = {
   * for configuration options and examples.                                  *
   *                                                                          *
   ***************************************************************************/
-
-   // Request available parking spots
-   'GET /getParkingSpots': {controller: "ParkingSpotController", action: "getAvailableSpots"},
+    
+    // Request available parking spots
+    'GET /getParkingSpots': {controller: "ParkingSpotController", action: "getAvailableSpots"},
+    
+    // Overwrite Booking some blueprints of Booking
+    'POST /booking': {controller: "BookingController", action: "create"}
 };
