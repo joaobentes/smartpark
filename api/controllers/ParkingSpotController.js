@@ -7,6 +7,40 @@
 
 var request = require('request');
 
+function parseParkingAreaTypes(parkingAreaTypes){
+    var parsedData = '';
+    _.each(parkingAreaTypes, function(type){
+	if(parsedData != ''){
+	    parsedData += ', ';
+	}
+	switch(type){
+	case 1: parsedData += 'Gata (avgift)'; break;
+	case 2: parsedData += 'Yta (mark eller p-hus)'; break;
+	case 3: parsedData += 'Tidsbegränsad (fri parkering)'; break;
+	}
+    });
+    return parsedData;
+}
+
+function parseParkingTypes(parkingTypes){
+    var parsedData = '';
+    _.each(parkingTypes, function(type){
+	if(parsedData != ''){
+	    parsedData += ', ';
+	}
+	switch(type){
+	case 1: parsedData += 'Avgiftplats'; break;
+	case 2: parsedData += 'Förhyrd'; break;
+	case 3: parsedData += 'El'; break;
+	case 4: parsedData += 'Handikapp'; break;
+	case 5: parsedData += 'MC'; break;
+	case 6: parsedData += 'Buss'; break;
+	case 7: parsedData +=  'Övrig'; break;
+	}
+    });
+    return parsedData;
+}
+
 module.exports = {
 
     getSpotsByUser: function(req, res){
@@ -16,9 +50,12 @@ module.exports = {
 		var ownerId = req.allParams().ownerId;
 		ParkingSpot.find({owner: ownerId})
 		    .exec(function(err, spots) {
-		    if(err) { cb(err); }
-		    cb(null, spots);
-		});
+			if(err) {
+			    cb(err);
+			} else {
+			    cb(null, spots);   
+			}
+		    });
 	    },
 	    function getBookedSpots(spots, cb){
 		var bookedSpots = _.filter(spots, function(spot){
@@ -26,12 +63,16 @@ module.exports = {
 		});
 		var spotIds = _.pluck(bookedSpots, 'id');
 		Booking.find({
-		    where: {parkingSpot: spotIds},
-		}).populateAll().exec(function(err, bookings){
-		    if(err || bookings.length < 1){
-			cb(err);
+		    where: {
+			parkingSpot: spotIds,
+			status: {'!': 'finished'}
 		    }
-		    cb(null, spots, bookings);
+		}).populateAll().exec(function(err, bookings){
+		    if(err){
+			cb(err);
+		    } else {
+			cb(null, spots, bookings);	
+		    }
 		});
 	    },
 	    function mapBookedSpots(spots, bookings, cb){
@@ -49,7 +90,7 @@ module.exports = {
 	    },
 	    function getNonBookedSpots(spots, bookedSpots, cb){
 		var nonBookedSpots = _.filter(spots, function(spot){
-		    return spot.status != 'booked'; 
+		    return spot.state != 'booked'; 
 		});
 		var spots = _.union(bookedSpots, nonBookedSpots);
 		cb(null, spots)
@@ -90,11 +131,12 @@ module.exports = {
 			    paymentTypes: spot.PaymentTypes,
 			    chargeDescription: spot.ChargeDescription,
 			};
+			
 			publicSpot.info = 'Name: ' + publicSpot.name  + '  \n' +
 			    'Available: ' + publicSpot.parkingSpacesAvailable  + '/' +
 			    publicSpot.parkingSpaces + '\n' +
-			    'Parking Types: ' + _.flatten(publicSpot.parkingType)  + '\n' +
-			    'Area Types: ' + _.flatten(publicSpot.parkingAreaType)  + '\n' +
+			    'Parking Types: ' + parseParkingTypes(publicSpot.parkingType)  + '\n' +
+			    'Area Types: ' + parseParkingAreaTypes(publicSpot.parkingAreaType)  + '\n' +
 			    'Description: ' +  publicSpot.chargeDescription;
 			
 			publicSpots.push(publicSpot);

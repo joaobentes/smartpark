@@ -10,6 +10,13 @@ module.exports = {
     create: function(req, res) {
 	var params = req.allParams();
 	async.waterfall ([
+	    function updatePreviousBookings(cb){
+		Booking.update({parkingSpot: params.parkingSpot}, {status: 'finished'})
+		    .exec(function (err, booking) {
+			if(err) { cb(err); }
+			cb(null);
+		    });
+	    },
 	    function isRequestable(cb) {
 		// Check if the spot is requestable or not
 		ParkingSpot.findOne({id: params.parkingSpot})
@@ -23,7 +30,6 @@ module.exports = {
 		var booking = {
 		    user: params.user,
 		    parkingSpot: params.parkingSpot,
-		    status: '',
 		    startTime: params.startTime,
 		    endTime: params.endTime
 		}
@@ -39,18 +45,19 @@ module.exports = {
 	    },
 	    function updateSpot(owner, booking, cb){
 		// Update the parking spot
+		console.log(booking);
 		if(booking.status=='approved'){
-		    ParkingSpot.update({id: params.parkingSpot}, {status: 'booked'})
-			.exec(function(err, spot){
+		    ParkingSpot.update({id: booking.parkingSpot}, {state: 'booked'})
+			.exec(function(err, spots){
 			    if(err) {
 				cb(err);
 			    } else {
-				console.log("Availability of " + spot.id + " set as " + spot.status);
-				cb(null, owner, booking)
+				console.log("Spot " + spots[0].id + " set as " + spots[0].state);
+				cb(null, owner, booking);
 			    };
 			});
 		} else {
-		    cb(null, owner, booking)
+		    cb(null, owner, booking);
 		}
 	    },
 	    function notifyOwner(owner, booking, cb) {
@@ -64,7 +71,6 @@ module.exports = {
 		} else {
 		    console.log("Unknow status");
 		}
-		
 		cb(null, booking);
 	    }
 	], function(err, booking) {
