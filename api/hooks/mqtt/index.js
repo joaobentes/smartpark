@@ -1,10 +1,10 @@
-function updateSpotAvailability(id, status) {
-    ParkingSpot.update({id: id}, {status: status})
-	.exec(function(err, spot){
+function updateSpotAvailability(id, isOccupied) {
+    ParkingSpot.update({id: id}, {isOccupied: isOccupied})
+	.exec(function(err, spots){
 	    if(err) {
 		console.log(err);
 	    } else {
-		console.log("Availability of " + spot.id + " set as " + spot.status);
+		console.log("Availability of " + spots[0].id + " set as " + spots[0].isOccupied);
 	    };
 	});
 }
@@ -40,10 +40,10 @@ module.exports = function mqtt(sails) {
 		client.on('message', function (topic, message) {
 		    console.log('Always on');
 		    if(topic === 'spot/occupied') {
-			updateSpotAvailability(message.toString(), 'occupied');
+			updateSpotAvailability(message.toString(), true);
 		    } else if (topic === 'spot/available') {
-			console.log(message);
-			updateSpotAvailability(message.toString(), 'available');
+			console.log(message.toString());
+			updateSpotAvailability(message.toString(), false);
 		    } else {
 			console.log('Unknow message');
 		    }
